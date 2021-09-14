@@ -1,4 +1,3 @@
 asyncio
-pocketsphinx
 selenium
 websocket-server

@@ -26,6 +26,16 @@
         // Connection opened
         socket.addEventListener('open', function (event) {
             socket.send('Hello Server!');
+            function patchconsole(fname){
+                const old = console[fname];
+                console[fname] = (...args)=>{
+                    old(...args)
+                    socket.send(fname+": "+args.map(x=>x.toString()).join(", "))
+                }
+            }
+            patchconsole("log")
+            patchconsole("error")
+            console.error = (...args)=>{socket.send()}
             recognition.start();
         });
 
