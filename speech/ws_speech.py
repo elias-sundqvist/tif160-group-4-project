@@ -8,9 +8,11 @@ class SpeechWebsocket():
         self.listeners = []
 
         def new_client(client, server):
+            print("New Client!")
             pass
 
         def message_received(client, server, message):
+            print("Message Received %s" % message)
             for listener in self.listeners:
                 listener(message)
 
