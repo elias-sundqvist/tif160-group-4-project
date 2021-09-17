@@ -1,9 +1,29 @@
 import _thread
+import speech_recognition as sp
 
-from speech.ws_speech import SpeechWebsocket
-from speech.page_server import serve_page
+rec = sp.Recognizer()
+my_micro = sp.Microphone(device_index=1)
 
-class Speech(SpeechWebsocket):
+class Speech():
     def __init__(self):
-        _thread.start_new_thread(serve_page, ())
-        super().__init__()
+        self.listeners = []
+
+        def message_received(message):
+            print("Message Received %s" % message)
+            for listener in self.listeners:
+                listener(message)
+
+        def recognition_loop():
+            with my_micro as source:
+                while True:
+                    audio = rec.listen(source, 2, 2)
+                    try:
+                        message_received(rec.recognize_google(audio))
+                    except:
+                        print("No message heard")
+                        pass
+
+        _thread.start_new_thread(recognition_loop, ())
+
+    def add_listener(self, listener):
+        self.listeners.append(listener)
