@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
     # Start the read thread
     thread_stopped_read = Event()
-    thread_read = TimerThreadWrite(thread_stopped_read,bus)
+    thread_read = TimerThreadRead(thread_stopped_read,bus)
     thread_read.name = 'Read thread'
     thread_read.start()
 
