@@ -64,10 +64,13 @@ class TimerThreadRead(Thread):
                 commands = line.split('&') # Split at '&' so we will have 'servo1:data&servo2:data&etc..'
                 global local_dict
                 for command in commands:
-                    temp = command.split(':')
-                    sensor = temp[0]
-                    value = temp[1]
-                    local_dict[sensor] = value
+                    try:
+                        temp = command.split(':')
+                        sensor = temp[0]
+                        value = temp[1]
+                        local_dict[sensor] = value
+                    except:
+                        continue
 
             except (serial.SerialException or TypeError) as e: # Not sure this is allowed
                 #There is no new data from serial port
