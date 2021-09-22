@@ -9,6 +9,60 @@ Created on Mon Sep 13 16:20:15 2021
 import numpy as np
 import cv2
 
+def contourDefinition(andMask,kernel):
+    dilation = cv2.dilate(andMask,kernel,iterations=3)
+    #andMask = cv2.bitwise_and(hsvImg, hsvImg, mask = color)
+    erosion = cv2.erode(dilation,kernel,iterations=3)
+    smooth = cv2.GaussianBlur(erosion,(5,5),0)
+    canny = cv2.Canny(smooth,100,200)
+    contours,_ = cv2.findContours(np.array(canny),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    
+    return contours
+
+
+def giveMeColor(color):
+    
+    colorArray = {
+            "red": (0, 0, 255),
+            "green": (0, 255, 0),
+            "blue": (255, 0, 0)
+        }
+    
+    return colorArray[color]
+
+
+def identifying(contours, color, image):
+        
+    colorA = giveMeColor(color)
+    
+    for i, contour in enumerate(contours):
+        perimeter = 0.1 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, perimeter, True)
+                
+        if (len(approx) == 4 or len(approx) == 6):
+            
+            area = cv2.contourArea(contour)
+            
+            if(area > 300):
+                x, y, w, h = cv2.boundingRect(contour)
+                ratio = w / float(h)
+                                
+                if ((0.95 <= ratio <= 1.05) or len(approx) == 6):
+                    image = cv2.rectangle(image, (x, y), (x + w, y + h), colorA, 2)
+                  
+                    cv2.putText(image, color, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, colorA)
+                    
+                    moments = cv2.moments(contour)
+                    
+                    xCenter = int(moments['m10']/moments['m00'])
+                    yCenter = int(moments['m01']/moments['m00'])
+                    
+                    cv2.drawMarker(image,(xCenter,yCenter), color=(255,255,255), markerType=cv2.MARKER_STAR)
+    
+    return True
+
+##############################################################
+
 inVideo = cv2.VideoCapture(0)
 
 while (True):
@@ -27,94 +81,31 @@ while (True):
     blueHighHsv = np.array([120, 255, 255], np.uint8)
     blueMask = cv2.inRange(hsvImg, blueLowHsv, blueHighHsv)
     
-    kernel = np.ones((5,5), np.uint8)
+    kernel = np.ones((3,3), np.uint8)
     
+    redAnd = cv2.bitwise_and(img, img, mask = redMask)
+    #redDilate = cv2.dilate(redMask, kernel, iterations=3)
     
-    # redDilate = cv2.dilate(redMask, kernel, iterations=3)
-    # redAnd = cv2.bitwise_and(img, img, mask = redDilate)
+    greenAnd = cv2.bitwise_and(img, img, mask = greenMask)
+    #greenDilate = cv2.dilate(greenMask, kernel, iterations=3)
     
-    # greenDilate = cv2.dilate(greenMask, kernel, iterations=3)
-    # greenAnd = cv2.bitwise_and(img, img, mask = greenDilate)
+    blueAnd = cv2.bitwise_and(img, img, mask = blueMask)
+    #blueDilate = cv2.dilate(blueMask, kernel, iterations=3)
     
-    # blueDilate = cv2.dilate(blueMask, kernel, iterations=3)
-    # blueAnd = cv2.bitwise_and(img, img, mask = blueDilate)
+    contoursRed = contourDefinition(redAnd, kernel)
+    contoursGreen = contourDefinition(greenAnd, kernel)
+    contoursBlue = contourDefinition(blueAnd, kernel)
     
-    colors = [redMask, greenMask, blueMask]
-    colorContours = []
-    
-    for color in colors:
-        dilation = cv2.dilate(color,kernel,iterations=3)
-        erosion = cv2.erode(dilation,kernel,iterations=3)
-        smooth = cv2.GaussianBlur(erosion,(5,5),0)
-        canny = cv2.Canny(smooth,100,200)
-        contours,_ = cv2.findContours(np.array(canny),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-        colorContours.append(contours)
-        
-    contoursRed, contoursGreen, contoursBlue = colorContours
-    
-    
-    # contoursRed, hierarchyRed = cv2.findContours(redDilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # contoursGreen, hierarchyGreen = cv2.findContours(greenDilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
-    # contoursBlue, hierarchyBlue = cv2.findContours(blueDilate, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    
-    
-    for i, contour in enumerate(contoursRed):
-        perimeter = 0.1 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, perimeter, True)
-                
-        if len(approx) == 4:
-            
-            area = cv2.contourArea(contour)
-            
-            if(area > 300):
-                x, y, w, h = cv2.boundingRect(contour)
-                ratio = w / float(h)
-                
-                if (0.95 <= ratio <= 1.05):
-                    img = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 2)
-                  
-                cv2.putText(img, "Red Color", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
-    
-    
-    for i, contour in enumerate(contoursGreen):
-        perimeter = 0.1 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, perimeter, True)
-                
-        if len(approx) == 4:
-            
-            area = cv2.contourArea(contour)
-            
-            if(area > 300):
-                x, y, w, h = cv2.boundingRect(contour)
-                ratio = w / float(h)
-                
-                if (0.95 <= ratio <= 1.05):
-                    img = cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                
-                cv2.putText(img, "Green Color", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0))
-            
-    
-    for i, contour in enumerate(contoursBlue):
-        perimeter = 0.1 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, perimeter, True)
-                
-        if len(approx) == 4:
-            
-            area = cv2.contourArea(contour)
-            
-            if(area > 300):
-                x, y, w, h = cv2.boundingRect(contour)
-                ratio = w / float(h)
-                
-                if (0.95 <= ratio <= 1.05):
-                    img = cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                  
-                cv2.putText(img, "Blue Color", (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 0, 0))
-    
+    identifying(contoursRed, "red", img)
+    identifying(contoursGreen, "green", img)
+    identifying(contoursBlue, "blue", img)
+                    
+                    #cv2.drawContours(img,contoursBlue,-1,(255,255,255),3)                     
+                    
     cv2.imshow("Colors", img)
-    
+    #cv2.imshow("b",blueAnd)
+    #cv2.imshow("b2",blueDilate)
+
     if cv2.waitKey(10) & 0xFF == ord('q'):
         
         break
