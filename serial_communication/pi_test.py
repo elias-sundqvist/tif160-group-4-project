@@ -9,12 +9,12 @@ from datetime import datetime
 from threading import Thread, Event
 
 # Servo ID's
-BODY = 0
-NECK_PAN = 1
-NECK_TILT = 2
-SHOULDER = 3
-ELBOW = 4
-GRIP = 5
+BODY = '0'
+NECK_PAN = '1'
+NECK_TILT = '2'
+SHOULDER = '3'
+ELBOW = '4'
+GRIP = '5'
 
 local_dict = {BODY: 0.0,
               NECK_PAN: 0.0,
@@ -68,9 +68,11 @@ class TimerThreadRead(Thread):
                         temp = command.split(':')
                         sensor = temp[0]
                         value = temp[1]
-                        local_dict[sensor] = value
+                        if sensor in local_dict:
+                            local_dict[sensor] = int(value)
                     except:
                         continue
+                print(local_dict)
 
             except (serial.SerialException or TypeError) as e: # Not sure this is allowed
                 #There is no new data from serial port
