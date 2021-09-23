@@ -39,6 +39,21 @@ const int pos_max[] = {2330, 2340, 2400, 2200, 2400, 2150};
 
 const int pos_move[] = {2200, 1500, 2000, 1100, 2300, 1600};
 
+void sendServoData(){  
+    // Might change this to not send a string
+    String data = String(neck_tilt_id)+':'+String(curr_pos[neck_tilt_id])+'&'+
+                  String(neck_pan_id)+':'+String(curr_pos[neck_pan_id])+'&'+
+                  String(shoulder_id)+':'+String(curr_pos[shoulder_id])+'&'+
+                  String(elbow_id)+':'+String(curr_pos[elbow_id])+'&'+
+                  String(body_id)+':'+String(curr_pos[body_id])+'&'+
+                  String(grip_id)+':'+String(curr_pos[grip_id]);
+    
+    Serial.println(data);
+}
+
+//Create a couple timers that will fire repeatedly every x ms
+TimedAction writeThread = TimedAction(1,sendServoData);
+
 //Servo update function
 void servo_body_ex(const int new_pos) {
 
@@ -57,9 +72,11 @@ void servo_body_ex(const int new_pos) {
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
     body.writeMicroseconds(now);
+    curr_pos[0] = now;
+    writeThread.check();
     delay(20);
   }
-  curr_pos[0] = now;
+  
   delay(10);
 }
 
@@ -81,9 +98,11 @@ void servo_neck_pan(const int new_pos) {
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
     headPan.writeMicroseconds(now);
+    curr_pos[1] = now;
+    writeThread.check();
     delay(20);
   }
-  curr_pos[1] = now;
+  
   delay(10);
 }
 
@@ -105,9 +124,11 @@ void servo_neck_tilt(const int new_pos) {
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
     headTilt.writeMicroseconds(now);
+    curr_pos[2] = now;
+    writeThread.check();
     delay(20);
   }
-  curr_pos[2] = now;
+  
   delay(10);
 }
 
@@ -129,9 +150,11 @@ void servo_shoulder(const int new_pos) {
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
     shoulder.writeMicroseconds(now);
+    curr_pos[3] = now;
+    writeThread.check();
     delay(20);
   }
-  curr_pos[3] = now;
+  
   delay(10);
 }
 
@@ -153,9 +176,11 @@ void servo_elbow(const int new_pos) {
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
     elbow.writeMicroseconds(now);
+    curr_pos[4] = now;
+    writeThread.check();
     delay(20);
   }
-  curr_pos[4] = now;
+  
   delay(10);
 }
 
@@ -177,9 +202,11 @@ void servo_gripper_ex(const int new_pos) {
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
     gripper.writeMicroseconds(now);
+    curr_pos[5] = now;
+    writeThread.check();
     delay(20);
   }
-  curr_pos[5] = now;
+  
   delay(10);
 }
 
@@ -216,21 +243,6 @@ void setup() {
     delay(2000);
 
 }
-
-void sendServoData(){  
-    // Might change this to not send a string
-    String data = String(neck_tilt_id)+':'+String(curr_pos[neck_tilt_id])+'&'+
-                  String(neck_pan_id)+':'+String(curr_pos[neck_pan_id])+'&'+
-                  String(shoulder_id)+':'+String(curr_pos[shoulder_id])+'&'+
-                  String(elbow_id)+':'+String(curr_pos[elbow_id])+'&'+
-                  String(body_id)+':'+String(curr_pos[body_id])+'&'+
-                  String(grip_id)+':'+String(curr_pos[grip_id]);
-    
-    Serial.println(data);
-}
-
-//Create a couple timers that will fire repeatedly every x ms
-TimedAction writeThread = TimedAction(100,sendServoData);
 
 void loop() {
   
