@@ -1,6 +1,7 @@
 /*
 
     Serial communication code for Arduino Uno.
+    Need to add the pos_min & pos_max to the move functions
 
 */
 #include <Arduino.h>
@@ -37,8 +38,6 @@ int new_servo_val[6];
 const int pos_min[] = {560, 550, 950, 750, 550, 550};
 const int pos_max[] = {2330, 2340, 2400, 2200, 2400, 2150};
 
-const int pos_move[] = {2200, 1500, 2000, 1100, 2300, 1600};
-
 void sendServoData(){  
     // Might change this to not send a string
     String data = String(neck_tilt_id)+':'+String(curr_pos[neck_tilt_id])+'&'+
@@ -71,6 +70,12 @@ void servo_body_ex(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
+    if(now > pos_max[0]){
+      now = pos_max[0];
+    }
+    else if(now < pos_min[0]){
+      now = pos_min[0];
+    }
     body.writeMicroseconds(now);
     curr_pos[0] = now;
     writeThread.check();
@@ -97,6 +102,12 @@ void servo_neck_pan(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
+    if(now > pos_max[1]){
+      now = pos_max[1];
+    }
+    else if(now < pos_min[1]){
+      now = pos_min[1];
+    }
     headPan.writeMicroseconds(now);
     curr_pos[1] = now;
     writeThread.check();
@@ -123,6 +134,12 @@ void servo_neck_tilt(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
+    if(now > pos_max[2]){
+      now = pos_max[2];
+    }
+    else if(now < pos_min[2]){
+      now = pos_min[2];
+    }
     headTilt.writeMicroseconds(now);
     curr_pos[2] = now;
     writeThread.check();
@@ -149,6 +166,12 @@ void servo_shoulder(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
+    if(now > pos_max[3]){
+      now = pos_max[3];
+    }
+    else if(now < pos_min[3]){
+      now = pos_min[3];
+    }
     shoulder.writeMicroseconds(now);
     curr_pos[3] = now;
     writeThread.check();
@@ -175,6 +198,12 @@ void servo_elbow(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
+    if(now > pos_max[4]){
+      now = pos_max[4];
+    }
+    else if(now < pos_min[4]){
+      now = pos_min[4];
+    }
     elbow.writeMicroseconds(now);
     curr_pos[4] = now;
     writeThread.check();
@@ -201,6 +230,12 @@ void servo_gripper_ex(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
+    if(now > pos_max[5]){
+      now = pos_max[5];
+    }
+    else if(now < pos_min[5]){
+      now = pos_min[5];
+    }
     gripper.writeMicroseconds(now);
     curr_pos[5] = now;
     writeThread.check();
