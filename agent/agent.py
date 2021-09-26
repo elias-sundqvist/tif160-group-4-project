@@ -23,3 +23,6 @@ class Agent():
                 dict[item] = MIN_MAX_VALUES[item][1]
 
         return dict
+
+    def fetch(self, color):
+        print(f"Fetching {color}")

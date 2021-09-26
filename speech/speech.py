@@ -16,8 +16,8 @@ class Speech():
         def recognition_loop():
             with my_micro as source:
                 while True:
-                    audio = rec.listen(source, 2, 2)
                     try:
+                        audio = rec.listen(source, 2, 2)
                         message_received(rec.recognize_google(audio))
                     except:
                         print("No message heard")
