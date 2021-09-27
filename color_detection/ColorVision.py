@@ -13,7 +13,7 @@ def createMask(color, hsvImage):
     colorRange = {
             "red": [np.array([136, 87, 111], np.uint8), np.array([180, 255, 255], np.uint8)],
             "green": [np.array([25, 52, 72], np.uint8), np.array([102, 255, 255], np.uint8)],
-            "blue": [np.array([94, 80, 2], np.uint8), np.array([120, 255, 255], np.uint8)]
+            "blue": [np.array([110, 50, 50], np.uint8), np.array([130, 255, 255], np.uint8)] #[np.array([94, 80, 2], np.uint8), np.array([120, 255, 255], np.uint8)]
         }
     
     low, high = colorRange[color]
@@ -59,7 +59,7 @@ def identifying(contours, color, image):
                 x, y, w, h = cv2.boundingRect(contour)
                 ratio = w / float(h)
                                 
-                if ((0.95 <= ratio <= 1.05) or len(approx) == 6):
+                if ((0.8 <= ratio <= 1.20) or len(approx) == 6):
                     image = cv2.rectangle(image, (x, y), (x + w, y + h), colorA, 2)
                   
                     cv2.putText(image, color, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, colorA)
@@ -72,6 +72,8 @@ def identifying(contours, color, image):
                     worldString = str('%.3f'%xWorld) + ',' + str('%.3f'%yWorld)
                     
                     cv2.putText(image, worldString, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (30,255,255))
+                    
+                    cv2.drawContours(img,contoursBlue,-1,(255,255,255),3)
     
     return True
 
