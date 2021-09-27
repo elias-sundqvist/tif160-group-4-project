@@ -9,6 +9,18 @@ Created on Mon Sep 13 16:20:15 2021
 import numpy as np
 import cv2
 
+def createMask(color, hsvImage):
+    colorRange = {
+            "red": [np.array([136, 87, 111], np.uint8), np.array([180, 255, 255], np.uint8)],
+            "green": [np.array([25, 52, 72], np.uint8), np.array([102, 255, 255], np.uint8)],
+            "blue": [np.array([94, 80, 2], np.uint8), np.array([120, 255, 255], np.uint8)]
+        }
+    
+    low, high = colorRange[color]
+    
+    return cv2.inRange(hsvImage, low, high)
+
+
 def contourDefinition(andMask,kernel):
     dilation = cv2.dilate(andMask,kernel,iterations=3)
     #andMask = cv2.bitwise_and(hsvImg, hsvImg, mask = color)
@@ -20,7 +32,7 @@ def contourDefinition(andMask,kernel):
     return contours
 
 
-def giveMeColor(color):
+def giveColorArray(color):
     
     colorArray = {
             "red": (0, 0, 255),
@@ -33,7 +45,7 @@ def giveMeColor(color):
 
 def identifying(contours, color, image):
         
-    colorA = giveMeColor(color)
+    colorA = giveColorArray(color)
     
     for i, contour in enumerate(contours):
         perimeter = 0.1 * cv2.arcLength(contour, True)
@@ -52,14 +64,44 @@ def identifying(contours, color, image):
                   
                     cv2.putText(image, color, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, colorA)
                     
-                    moments = cv2.moments(contour)
+                    xScreen, yScreen = objectCoords(contour)
                     
-                    xCenter = int(moments['m10']/moments['m00'])
-                    yCenter = int(moments['m01']/moments['m00'])
+                    cv2.drawMarker(image,(xScreen,yScreen), color=(255,255,255), markerType=cv2.MARKER_STAR)
+    
+                    xWorld, yWorld = worldCoords(xScreen, yScreen, image)
+                    worldString = str('%.3f'%xWorld) + ',' + str('%.3f'%yWorld)
                     
-                    cv2.drawMarker(image,(xCenter,yCenter), color=(255,255,255), markerType=cv2.MARKER_STAR)
+                    cv2.putText(image, worldString, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (30,255,255))
     
     return True
+
+
+def objectCoords(contour):
+    
+    moments = cv2.moments(contour)
+                    
+    xCenter = int(moments['m10']/moments['m00'])
+    yCenter = int(moments['m01']/moments['m00'])
+    
+    return xCenter, yCenter
+
+
+def worldCoords(xScreen, yScreen, image):
+    
+    xCenterOfProjection = 8.37012443e+02
+    yCenterOfProjection = 4.95061830e+02
+    xFocalPoint = 1.57323206e+03
+    yFocalPoint = 1.55743567e+03
+    zDistance = 20.0
+    
+    xWorld = (xScreen - xCenterOfProjection) * zDistance / xFocalPoint
+    
+    yWorld = (yScreen - yCenterOfProjection) * zDistance / yFocalPoint
+    
+    cv2.drawMarker(image,(int(xCenterOfProjection), int(yCenterOfProjection)), color=(0,0,0), markerType=cv2.MARKER_CROSS)
+    
+    return xWorld, yWorld
+
 
 ##############################################################
 
@@ -68,18 +110,10 @@ inVideo = cv2.VideoCapture(0)
 while (True):
     _, img =  inVideo.read()
     hsvImg = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    
-    redLowHsv = np.array([136, 87, 111], np.uint8)
-    redHighHsv = np.array([180, 255, 255], np.uint8)
-    redMask = cv2.inRange(hsvImg, redLowHsv, redHighHsv)
-    
-    greenLowHsv = np.array([25, 52, 72], np.uint8)
-    greenHighHsv = np.array([102, 255, 255], np.uint8)
-    greenMask = cv2.inRange(hsvImg, greenLowHsv, greenHighHsv)
-    
-    blueLowHsv = np.array([94, 80, 2], np.uint8)
-    blueHighHsv = np.array([120, 255, 255], np.uint8)
-    blueMask = cv2.inRange(hsvImg, blueLowHsv, blueHighHsv)
+        
+    redMask = createMask("red", hsvImg)
+    greenMask = createMask("green", hsvImg)
+    blueMask = createMask("blue", hsvImg)
     
     kernel = np.ones((3,3), np.uint8)
     
