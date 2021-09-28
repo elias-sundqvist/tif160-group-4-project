@@ -6,7 +6,7 @@ if __name__ == "__main__":
     agent = Agent()
     sc = SerialCommunicator(agent)
 
-    speech = Speech()
+    #speech = Speech()
 
     def handle_speech(msg):
         msg = msg.lower()
@@ -19,5 +19,7 @@ if __name__ == "__main__":
         if 'blue' in msg:
             agent.fetch('blue')
 
-    speech.add_listener(handle_speech)
-    input("Press Enter to continue...")
+    #speech.add_listener(handle_speech)
+    #input("Press Enter to continue...")
+
+    sc.thread_write.join()
