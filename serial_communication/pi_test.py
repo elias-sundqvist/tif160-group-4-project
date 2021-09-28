@@ -12,22 +12,11 @@ local_dict = {BODY: 1425,
               NECK_TILT: 1870,
               SHOULDER: 2180,
               ELBOW: 1400,
-              GRIP: 1700}
-
-L = {
-    1: 0.055,
-    2: 0.315,
-    3: 0.045,
-    4: 0.108,
-    5: 0.005,
-    6: 0.034,
-    7: 0.015,
-    8: 0.088,
-    9: 0.204
-}
+              GRIP: 1700,
+              READY: False}
 
 class TimerThreadWrite(Thread):
-    def __init__(self, event, bus, agent, interval=10):
+    def __init__(self, event, bus, agent, interval=2):
         Thread.__init__(self)
         self.stopped = event
         self.interval = interval
@@ -37,19 +26,18 @@ class TimerThreadWrite(Thread):
     def run(self):
         # Thread to send messages over UART
         while not self.stopped.wait(self.interval):
-            print("Sending new pos!")
             try:
                 global local_dict
-                new_positions = self.agent.run(local_dict,[-0.09,-0.15,0.12])
-                #print("New Pos:")
-                #print(new_positions)
-                res = ''
-                for i, item in enumerate(new_positions):
-                    res += str(item) + ':' + str(new_positions[item]) + ('' if i == len(new_positions)-1 else '&') # This will add a '&' to the last servo also, might remove it
-                #print(res)
-                self.bus.write(res.encode('utf-8'))
+                if(local_dict[READY]):
+                    print("Sending new pos!")
+                    new_positions = self.agent.run(local_dict,[-0.09,-0.15,0.12])
+                    res = ''
+                    for i, item in enumerate(new_positions):
+                        res += str(item) + ':' + str(new_positions[item]) + ('' if i == len(new_positions)-1 else '&') # This will add a '&' to the last servo also, might remove it
+                    print(res)
+                    self.bus.write(res.encode('utf-8'))
 
-            except serial.SerialException or TypeError as e: # Not sure this is allowed
+            except (serial.SerialException or TypeError) as e: # Not sure this is allowed (BUG)
                 #There is no new data from serial port
                 print("Serial error got ",e)
                 self.bus.close()
@@ -73,15 +61,15 @@ class TimerThreadRead(Thread):
                 for command in commands:
                     try:
                         temp = command.split(':')
-                        sensor = temp[0]
+                        servo = temp[0]
                         value = temp[1]
-                        if sensor in local_dict:
-                            local_dict[sensor] = int(value)
+                        if servo in local_dict:
+                            local_dict[servo] = (int(value) if servo != 6 else bool(value)) #We could store them as strings and deal with int convertion later in agent?
                     except:
-                        continue
+                        continue # This is only for the first time reading the Arduino might give strange things
                 print(local_dict)
 
-            except (serial.SerialException or TypeError) as e: # Not sure this is allowed
+            except (serial.SerialException or TypeError) as e: # Not sure this is allowed (BUG)
                 #There is no new data from serial port
                 print("Serial error got: ",e)
                 self.bus.close()
