@@ -17,7 +17,7 @@ class Speech():
             with sp.Microphone() as source:
                 while True:
                     try:
-                        audio = rec.listen(source)
+                        audio = rec.listen(source,2,2)
                         message_received(rec.recognize_google(audio))
                     except:
                         print("No message heard")
