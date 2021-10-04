@@ -44,36 +44,36 @@ class Agent():
 
     def run(self, dict, target):
         new_dict = {}
-        target_pose = poses[self.state]
-        done = True
-        for k in target_pose.keys():
-            target_servo_val = rad_to_servo(k, target_pose[k]) if k != GRIP else target_pose[k]
-            #print(dict[k], target_servo_val, k)
+        # target_pose = poses[self.state]
+        # done = True
+        # for k in target_pose.keys():
+        #     target_servo_val = rad_to_servo(k, target_pose[k]) if k != GRIP else target_pose[k]
+        #     #print(dict[k], target_servo_val, k)
 
-            if(abs(dict[k]-target_servo_val)>THRESHOLD):
-                done=False
+        #     if(abs(dict[k]-target_servo_val)>THRESHOLD):
+        #         done=False
 
-            new_dict[k] = target_servo_val
+        #     new_dict[k] = target_servo_val
 
         
-        if done:
-            self.state+=1
-        #print(self.state)
+        # if done:
+        #     self.state+=1
+        # #print(self.state)
 
-        if False:
-            body_rad, shoulder_rad, elbow_rad = k.step_towards_target([
-                 servo_to_rad(BODY,dict[BODY]),
-                 servo_to_rad(SHOULDER,dict[SHOULDER]),
-                 servo_to_rad(ELBOW,dict[ELBOW])
-            ], target, 1)
-            if(abs(dict[BODY] - rad_to_servo(BODY, body_rad))<THRESHOLD):
-                if(abs(dict[SHOULDER] - rad_to_servo(SHOULDER, shoulder_rad))<THRESHOLD):
-                    dict[ELBOW] = rad_to_servo(ELBOW, elbow_rad)
-                dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
-            dict[BODY] = rad_to_servo(BODY, body_rad)
-	        # dict[BODY] = rad_to_servo(BODY, body_rad)
-	        # dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
-	        # dict[ELBOW]  = rad_to_servo(ELBOW, elbow_rad)
+        body_rad, shoulder_rad, elbow_rad = k.step_towards_target([
+                servo_to_rad(BODY,dict[BODY]),
+                servo_to_rad(SHOULDER,dict[SHOULDER]),
+                servo_to_rad(ELBOW,dict[ELBOW])
+        ], target, 50, 0.9)
+        print(f"Body: {body_rad} Shoulder {shoulder_rad} Elbow {elbow_rad}")
+        # if(abs(dict[BODY] - rad_to_servo(BODY, body_rad))<THRESHOLD):
+        #     if(abs(dict[SHOULDER] - rad_to_servo(SHOULDER, shoulder_rad))<THRESHOLD):
+        #         new_dict[ELBOW] = rad_to_servo(ELBOW, elbow_rad)
+        #     new_dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
+        # new_dict[BODY] = rad_to_servo(BODY, body_rad)
+        new_dict[BODY] = rad_to_servo(BODY, body_rad)
+        new_dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
+        new_dict[ELBOW]  = rad_to_servo(ELBOW, elbow_rad)
 
         # for item in dict:
         #     if dict[item] < MIN_MAX_VALUES[item][0]:

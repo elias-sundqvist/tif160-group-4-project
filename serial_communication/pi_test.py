@@ -7,7 +7,7 @@ import time
 from threading import Thread, Event
 from serial_communication.servo_ids import *
 
-local_dict = {BODY: 1425,
+local_dict = {BODY: 560,
               NECK_PAN: 1425,
               NECK_TILT: 1870,
               SHOULDER: 2180,
@@ -30,7 +30,7 @@ class TimerThreadWrite(Thread):
                 global local_dict
                 if(local_dict[READY]):
                     print("Sending new pos!")
-                    new_positions = self.agent.run(local_dict,[-0.09,-0.15,0.12])
+                    new_positions = self.agent.run(local_dict,[-0.04,0.2,0.12])
                     res = ''
                     for i, item in enumerate(new_positions):
                         res += str(item) + ':' + str(new_positions[item]) + ('' if i == len(new_positions)-1 else '&') # This will add a '&' to the last servo also, might remove it
