@@ -25,12 +25,12 @@ def forward(θ):
     ]
     return res
 
-min_angles = torch.tensor([0, 0, 0])
+min_angles = torch.tensor([0.001, 0.001, 0.001])
 max_angles = torch.tensor([math.pi, math.pi, math.pi/2])
 
 # Takes the current radians for body, shoulder, elbow, and a target x,y,z (in meters) position
 # moves the servos one step closer to the desired position.
-def step_towards_target(current_radians, target_pos, n_steps):
+def step_towards_target(current_radians, target_pos, n_steps, lr=0.1):
     θ = torch.tensor(current_radians, requires_grad=True)
     for i in range(n_steps):
         target = torch.tensor(target_pos)
@@ -40,5 +40,8 @@ def step_towards_target(current_radians, target_pos, n_steps):
         grad = θ.grad
         if i % 100 == 0:
             print(f"loss: {loss}, θ: {θ}, grad:{θ.grad}")
-        θ = torch.min(torch.max(min_angles, (θ-0.1*grad)), max_angles).clone().detach().requires_grad_(True)
+        new_θ = (θ-lr*grad)
+        θ = new_θ.clone().detach().requires_grad_(True)
+        #θ = torch.min(torch.max(min_angles, new_θ), max_angles).clone().detach().requires_grad_(True)
+    print(f"pos: {pos}")
     return θ.detach()

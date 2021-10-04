@@ -16,6 +16,8 @@
 #define shoulder_id 3
 #define elbow_id 4
 #define grip_id 5
+#define ready_id 6
+#define THRESHOLD 10
 
 //Servos
 Servo body;
@@ -24,19 +26,20 @@ Servo headTilt;
 Servo shoulder;
 Servo elbow;
 Servo gripper;
+
 char input[INPUT_SIZE + 1];
+bool READY = false;
 
 //Init position of all servos
 const int servo_pins[] = {3, 5, 6, 9, 10, 11};
 
-                      //body:0 pan:1 tilt:2 shoulder:3 elbow:4 gripper:5
+//body:0 pan:1 tilt:2 shoulder:3 elbow:4 gripper:5
 const int pos_init[] = {1425, 1425, 1870, 2180, 1400, 1700};
+const int pos_min[] = {560, 550, 950, 750, 550, 550};
+const int pos_max[] = {2330, 2340, 2400, 2200, 2400, 2150};
 
 int curr_pos[6];
 int new_servo_val[6];
-
-const int pos_min[] = {560, 550, 950, 750, 550, 550};
-const int pos_max[] = {2330, 2340, 2400, 2200, 2400, 2150};
 
 void sendServoData(){  
     // Might change this to not send a string
@@ -45,7 +48,8 @@ void sendServoData(){
                   String(shoulder_id)+':'+String(curr_pos[shoulder_id])+'&'+
                   String(elbow_id)+':'+String(curr_pos[elbow_id])+'&'+
                   String(body_id)+':'+String(curr_pos[body_id])+'&'+
-                  String(grip_id)+':'+String(curr_pos[grip_id]);
+                  String(grip_id)+':'+String(curr_pos[grip_id])+'&'+
+                  String(ready_id)+':'+String(READY);
     
     Serial.println(data);
 }
@@ -59,7 +63,7 @@ void servo_body_ex(const int new_pos) {
   int diff, steps, now, CurrPwm, NewPwm, delta = 6;
 
   //current servo value
-  now = curr_pos[0];
+  now = curr_pos[body_id];
   CurrPwm = now;
   NewPwm = new_pos;
 
@@ -70,14 +74,14 @@ void servo_body_ex(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
-    if(now > pos_max[0]){
-      now = pos_max[0];
+    if(now > pos_max[body_id]){
+      now = pos_max[body_id];
     }
-    else if(now < pos_min[0]){
-      now = pos_min[0];
+    else if(now < pos_min[body_id]){
+      now = pos_min[body_id];
     }
     body.writeMicroseconds(now);
-    curr_pos[0] = now;
+    curr_pos[body_id] = now;
     writeThread.check();
     delay(20);
   }
@@ -91,7 +95,7 @@ void servo_neck_pan(const int new_pos) {
   int diff, steps, now, CurrPwm, NewPwm, delta = 6;
 
   //current servo value
-  now = curr_pos[1];
+  now = curr_pos[neck_pan_id];
   CurrPwm = now;
   NewPwm = new_pos;
 
@@ -102,14 +106,14 @@ void servo_neck_pan(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
-    if(now > pos_max[1]){
-      now = pos_max[1];
+    if(now > pos_max[neck_pan_id]){
+      now = pos_max[neck_pan_id];
     }
-    else if(now < pos_min[1]){
-      now = pos_min[1];
+    else if(now < pos_min[neck_pan_id]){
+      now = pos_min[neck_pan_id];
     }
     headPan.writeMicroseconds(now);
-    curr_pos[1] = now;
+    curr_pos[neck_pan_id] = now;
     writeThread.check();
     delay(20);
   }
@@ -123,7 +127,7 @@ void servo_neck_tilt(const int new_pos) {
   int diff, steps, now, CurrPwm, NewPwm, delta = 6;
 
   //current servo value
-  now = curr_pos[2];
+  now = curr_pos[neck_tilt_id];
   CurrPwm = now;
   NewPwm = new_pos;
 
@@ -134,14 +138,14 @@ void servo_neck_tilt(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
-    if(now > pos_max[2]){
-      now = pos_max[2];
+    if(now > pos_max[neck_tilt_id]){
+      now = pos_max[neck_tilt_id];
     }
-    else if(now < pos_min[2]){
-      now = pos_min[2];
+    else if(now < pos_min[neck_tilt_id]){
+      now = pos_min[neck_tilt_id];
     }
     headTilt.writeMicroseconds(now);
-    curr_pos[2] = now;
+    curr_pos[neck_tilt_id] = now;
     writeThread.check();
     delay(20);
   }
@@ -155,7 +159,7 @@ void servo_shoulder(const int new_pos) {
   int diff, steps, now, CurrPwm, NewPwm, delta = 6;
 
   //current servo value
-  now = curr_pos[3];
+  now = curr_pos[shoulder_id];
   CurrPwm = now;
   NewPwm = new_pos;
 
@@ -166,14 +170,14 @@ void servo_shoulder(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
-    if(now > pos_max[3]){
-      now = pos_max[3];
+    if(now > pos_max[shoulder_id]){
+      now = pos_max[shoulder_id];
     }
-    else if(now < pos_min[3]){
+    else if(now < pos_min[shoulder_id]){
       now = pos_min[3];
     }
     shoulder.writeMicroseconds(now);
-    curr_pos[3] = now;
+    curr_pos[shoulder_id] = now;
     writeThread.check();
     delay(20);
   }
@@ -187,7 +191,7 @@ void servo_elbow(const int new_pos) {
   int diff, steps, now, CurrPwm, NewPwm, delta = 6;
 
   //current servo value
-  now = curr_pos[4];
+  now = curr_pos[elbow_id];
   CurrPwm = now;
   NewPwm = new_pos;
 
@@ -198,14 +202,14 @@ void servo_elbow(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
-    if(now > pos_max[4]){
-      now = pos_max[4];
+    if(now > pos_max[elbow_id]){
+      now = pos_max[elbow_id];
     }
     else if(now < pos_min[4]){
-      now = pos_min[4];
+      now = pos_min[elbow_id];
     }
     elbow.writeMicroseconds(now);
-    curr_pos[4] = now;
+    curr_pos[elbow_id] = now;
     writeThread.check();
     delay(20);
   }
@@ -219,7 +223,7 @@ void servo_gripper_ex(const int new_pos) {
   int diff, steps, now, CurrPwm, NewPwm, delta = 6;
 
   //current servo value
-  now = curr_pos[5];
+  now = curr_pos[grip_id];
   CurrPwm = now;
   NewPwm = new_pos;
 
@@ -230,14 +234,14 @@ void servo_gripper_ex(const int new_pos) {
 
   for (int i = 0; i < steps; i += delta) {
     now = now + delta*diff;
-    if(now > pos_max[5]){
-      now = pos_max[5];
+    if(now > pos_max[grip_id]){
+      now = pos_max[grip_id];
     }
-    else if(now < pos_min[5]){
-      now = pos_min[5];
+    else if(now < pos_min[grip_id]){
+      now = pos_min[grip_id];
     }
     gripper.writeMicroseconds(now);
-    curr_pos[5] = now;
+    curr_pos[grip_id] = now;
     writeThread.check();
     delay(20);
   }
@@ -247,32 +251,32 @@ void servo_gripper_ex(const int new_pos) {
 
 void setup() {
     Serial.begin(57600); // Starts the serial communication
+    Serial.flush();
     
     //Attach each joint servo
     //and write each init position
-    body.attach(servo_pins[0]);
-    body.writeMicroseconds(pos_init[0]); 
+    body.attach(servo_pins[body_id]);
+    body.writeMicroseconds(pos_init[body_id]); 
     
-    headPan.attach(servo_pins[1]);
-    headPan.writeMicroseconds(pos_init[1]);
+    headPan.attach(servo_pins[neck_pan_id]);
+    headPan.writeMicroseconds(pos_init[neck_pan_id]);
     
-    headTilt.attach(servo_pins[2]);
-    headTilt.writeMicroseconds(pos_init[2]);
+    headTilt.attach(servo_pins[neck_tilt_id]);
+    headTilt.writeMicroseconds(pos_init[neck_tilt_id]);
 
-    shoulder.attach(servo_pins[3]);
-    shoulder.writeMicroseconds(pos_init[3]);
+    shoulder.attach(servo_pins[shoulder_id]);
+    shoulder.writeMicroseconds(pos_init[shoulder_id]);
 
-    elbow.attach(servo_pins[4]);
-    elbow.writeMicroseconds(pos_init[4]);
+    elbow.attach(servo_pins[elbow_id]);
+    elbow.writeMicroseconds(pos_init[elbow_id]);
     
-    gripper.attach(servo_pins[5]);
-    gripper.writeMicroseconds(pos_init[5]);
+    gripper.attach(servo_pins[grip_id]);
+    gripper.writeMicroseconds(pos_init[grip_id]);
 
     //Initilize curr_pos and new_servo_val vectors
     byte i;
     for (i=0; i<(sizeof(pos_init)/sizeof(int)); i++){
       curr_pos[i] = pos_init[i];
-      new_servo_val[i] = curr_pos[i];
     }
 
     delay(2000);
@@ -292,6 +296,7 @@ void loop() {
   // Read each command pair 
   char* command = strtok(input, "&");
   while (command != 0){
+      READY = false;
       // Split the command in two values
       char* separator = strchr(command, ':');
       if (separator != 0){
@@ -301,24 +306,37 @@ void loop() {
           ++separator;
           int position = atoi(separator);
           // Do something with servoId and position
+          
           switch (servoId){
             case body_id:
-              servo_body_ex((const int) position);
+              if(abs(curr_pos[body_id] - position) > THRESHOLD){
+                servo_body_ex((const int) position);  
+              }
               break;
             case neck_pan_id:
-              servo_neck_pan((const int) position);
+              if(abs(curr_pos[neck_pan_id] - position) > THRESHOLD){
+                servo_neck_pan((const int) position);  
+              }
               break;
             case neck_tilt_id:
-              servo_neck_tilt((const int) position);
+              if(abs(curr_pos[neck_tilt_id] - position) > THRESHOLD){
+                servo_neck_tilt((const int) position);
+              }
               break;
             case shoulder_id:
-              servo_shoulder((const int) position);
+              if(abs(curr_pos[shoulder_id] - position) > THRESHOLD){
+                servo_shoulder((const int) position);
+              }
               break;
             case elbow_id:
-              servo_elbow((const int) position);
+              if(abs(curr_pos[elbow_id] - position) > THRESHOLD){
+                servo_elbow((const int) position);
+              }
               break;
             case grip_id:
-              servo_gripper_ex((const int) position);
+              if(abs(curr_pos[grip_id] - position) > THRESHOLD){
+                servo_gripper_ex((const int) position);
+              }
               break;
             default:
               break;
@@ -331,5 +349,6 @@ void loop() {
 
     // Serial.print("You sent me: ");  // Send it using utf-8 encoding
   }
+  READY = true;
   
 }

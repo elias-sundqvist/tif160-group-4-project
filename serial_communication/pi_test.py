@@ -7,15 +7,16 @@ import time
 from threading import Thread, Event
 from serial_communication.servo_ids import *
 
-local_dict = {BODY: 0.0,
-              NECK_PAN: 0.0,
-              NECK_TILT: 0.0,
-              SHOULDER: 0.0,
-              ELBOW: 0.0,
-              GRIP: 0.0}
+local_dict = {BODY: 560,
+              NECK_PAN: 1425,
+              NECK_TILT: 1870,
+              SHOULDER: 2180,
+              ELBOW: 1400,
+              GRIP: 1700,
+              READY: False}
 
 class TimerThreadWrite(Thread):
-    def __init__(self, event, bus, agent, interval=0.05):
+    def __init__(self, event, bus, agent, interval=2):
         Thread.__init__(self)
         self.stopped = event
         self.interval = interval
@@ -27,13 +28,16 @@ class TimerThreadWrite(Thread):
         while not self.stopped.wait(self.interval):
             try:
                 global local_dict
-                new_positions = self.agent.run(local_dict)
-                res = ''
-                for item in new_positions:
-                    res += str(item) + ':' + str(new_positions[item]) + '&' # This will add a '&' to the last servo also, might remove it
-                bus.write(res.encode('utf-8'))
+                if(local_dict[READY]):
+                    print("Sending new pos!")
+                    new_positions = self.agent.run(local_dict,[-0.04,0.2,0.12])
+                    res = ''
+                    for i, item in enumerate(new_positions):
+                        res += str(item) + ':' + str(new_positions[item]) + ('' if i == len(new_positions)-1 else '&') # This will add a '&' to the last servo also, might remove it
+                    print(res)
+                    self.bus.write(res.encode('utf-8'))
 
-            except serial.SerialException or TypeError as e: # Not sure this is allowed
+            except (serial.SerialException or TypeError) as e: # Not sure this is allowed (BUG)
                 #There is no new data from serial port
                 print("Serial error got ",e)
                 self.bus.close()
@@ -57,15 +61,15 @@ class TimerThreadRead(Thread):
                 for command in commands:
                     try:
                         temp = command.split(':')
-                        sensor = temp[0]
+                        servo = temp[0]
                         value = temp[1]
-                        if sensor in local_dict:
-                            local_dict[sensor] = int(value)
+                        if servo in local_dict:
+                            local_dict[servo] = (int(value) if servo != 6 else bool(value)) #We could store them as strings and deal with int convertion later in agent?
                     except:
-                        continue
+                        continue # This is only for the first time reading the Arduino might give strange things
                 print(local_dict)
 
-            except (serial.SerialException or TypeError) as e: # Not sure this is allowed
+            except (serial.SerialException or TypeError) as e: # Not sure this is allowed (BUG)
                 #There is no new data from serial port
                 print("Serial error got: ",e)
                 self.bus.close()
@@ -79,19 +83,19 @@ class SerialCommunicator:
 
         # Start the read thread
         thread_stopped_read = Event()
-        thread_read = TimerThreadRead(thread_stopped_read, self.bus)
-        thread_read.name = 'Read thread'
-        thread_read.start()
+        self.thread_read = TimerThreadRead(thread_stopped_read, self.bus)
+        self.thread_read.name = 'Read thread'
+        self.thread_read.start()
 
         time.sleep(1) # Sleep for some time to fill the dict with data (Kinda dependent if the Arduino has started or not)
 
         # Start UART-write thread
         thread_stopped_write = Event()
-        thread_write = TimerThreadWrite(thread_stopped_write, self.bus, agent)
-        thread_write.name = 'Write thread'
-        thread_write.start()
+        self.thread_write = TimerThreadWrite(thread_stopped_write, self.bus, agent)
+        self.thread_write.name = 'Write thread'
+        self.thread_write.start()
 
-        thread_write.join() # Join the write thread to main so that main thread will stay active until write thread ends
-        self.bus.close()
-        print("Terminating...")
-        time.sleep(1)
+        # thread_write.join() # Join the write thread to main so that main thread will stay active until write thread ends
+        # self.bus.close()
+        # print("Terminating...")
+        # time.sleep(1)

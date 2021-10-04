@@ -10,8 +10,9 @@ MIN_MAX_VALUES = {BODY:[560, 2330],
                   GRIP:[950, 2400]}
 
 # SERVO_FOR_MIN_RAD, SERVO_FOR_MAX_RAD, MIN_RAD, MAX_RAD
+# Change body 0 -> ~6 deg
 MIN_MAX_SERVO_RAD = {
-    BODY: [950,1900,-pi/4,pi/4],
+    BODY: [560,2350,pi,6 * pi/180], 
     SHOULDER: [2180, 1280, 0, pi/2],
     ELBOW: [1400, 2400, 0, pi/2],
     NECK_PAN: [550, 2300, -pi/2, pi/2],

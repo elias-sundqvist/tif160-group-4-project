@@ -20,4 +20,6 @@ if __name__ == "__main__":
             agent.fetch('blue')
 
     speech.add_listener(handle_speech)
-    input("Press Enter to continue...")
+    #input("Press Enter to continue...")
+
+    sc.thread_write.join()
