@@ -13,7 +13,7 @@ def createMask(color, hsvImage):
     colorRange = {
             "red": [np.array([136, 87, 111], np.uint8), np.array([180, 255, 255], np.uint8)],
             "green": [np.array([25, 52, 72], np.uint8), np.array([102, 255, 255], np.uint8)],
-            "blue": [np.array([110, 50, 50], np.uint8), np.array([130, 255, 255], np.uint8)] #[np.array([94, 80, 2], np.uint8), np.array([120, 255, 255], np.uint8)]
+            "blue": [np.array([94, 80, 2], np.uint8), np.array([130, 255, 255], np.uint8)] #[np.array([94, 80, 2], np.uint8), np.array([120, 255, 255], np.uint8)]
         }
     
     low, high = colorRange[color]
