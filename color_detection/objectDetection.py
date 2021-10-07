@@ -95,7 +95,7 @@ def worldCoords(xScreen, yScreen, image):
     yCenterOfProjection = 4.95061830e+02
     xFocalPoint = 1.57323206e+03
     yFocalPoint = 1.55743567e+03
-    zDistance = 0.2
+    zDistance = 0.3
     
     xWorld = (xScreen - xCenterOfProjection) * zDistance / xFocalPoint
     
@@ -122,7 +122,7 @@ def confirmDetection(xCoordList, yCoordList):
     
 
 def coordinateTransform(xWorld, yWorld):
-    zWorld = 0.2
+    zWorld = 0.3
     cos = np.cos(-np.pi / 2)
     sin = np.sin(-np.pi / 2)
     l2_l3 = 0.315 + 0.045  # length from shoulder to base
@@ -158,7 +158,15 @@ def coordinateTransform(xWorld, yWorld):
 
 def detectionLoop(color):
     
-    inVideo = cv2.VideoCapture(0)
+    inVideo = cv2.VideoCapture(0,cv2.CAP_V4L2)
+    if inVideo.read()[0]:
+        print('Camera index correct')
+    
+    inVideo.set(cv2.CAP_PROP_FRAME_WIDTH,  1920)
+    inVideo.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+    print(inVideo.get(cv2.CAP_PROP_FRAME_WIDTH),inVideo.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
     xCoordList = []
     yCoordList = []
     
@@ -196,7 +204,7 @@ def detectionLoop(color):
             start = time.time()
             #print('start',start)
             
-            if len(xCoordList) >= 50:
+            if len(xCoordList) >= 25:
                 confirmed = confirmDetection(xCoordList, yCoordList)
                 
                 if confirmed:
@@ -211,7 +219,7 @@ def detectionLoop(color):
                         
                         #cv2.drawContours(img,contoursBlue,-1,(255,255,255),3)                     
                         
-        cv2.imshow("Colors", img)
+        # cv2.imshow("Colors", img)
         #cv2.imshow("b",blueAnd)
         #cv2.imshow("b2",blueDilate)
         stop = time.time()
@@ -235,5 +243,5 @@ def detectionLoop(color):
     
     return finalCoords
 
-f = detectionLoop("red")
-print('final', f)
+# f = detectionLoop("red")
+# print('final', f)

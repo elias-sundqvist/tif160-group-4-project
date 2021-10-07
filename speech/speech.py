@@ -2,7 +2,7 @@ import _thread
 import speech_recognition as sp
 
 rec = sp.Recognizer()
-# my_micro = sp.Microphone(device_index=1)
+#my_micro = 
 
 class Speech():
     def __init__(self):
@@ -14,7 +14,7 @@ class Speech():
                 listener(message)
 
         def recognition_loop():
-            with sp.Microphone() as source:
+            with sp.Microphone(device_index=1) as source:
                 while True:
                     try:
                         audio = rec.listen(source,2,2)

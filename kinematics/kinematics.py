@@ -38,10 +38,10 @@ def step_towards_target(current_radians, target_pos, n_steps, lr=0.1):
         loss = torch.mean(torch.square(torch.sub(pos, target)))
         loss.backward()
         grad = θ.grad
-        if i % 100 == 0:
-            print(f"loss: {loss}, θ: {θ}, grad:{θ.grad}")
+        # if i % 100 == 0:
+        #     print(f"loss: {loss}, θ: {θ}, grad:{θ.grad}")
         new_θ = (θ-lr*grad)
         θ = new_θ.clone().detach().requires_grad_(True)
         #θ = torch.min(torch.max(min_angles, new_θ), max_angles).clone().detach().requires_grad_(True)
-    print(f"pos: {pos}")
+    # print(f"pos: {pos}")
     return θ.detach()

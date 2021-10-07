@@ -3,6 +3,8 @@ import kinematics.kinematics as k
 from serial_communication.servo_ids import *
 from serial_communication.servo_utils import servo_to_rad, rad_to_servo
 from math import pi
+from color_detection.objectDetection import detectionLoop
+
 
 THRESHOLD=20
 
@@ -41,6 +43,7 @@ class Agent():
     def __init__(self):
         self.placeholder = -1
         self.state = 0
+        self.coordinates = [0.103,0.26625,0.51925]
 
     def run(self, dict, target):
         new_dict = {}
@@ -65,7 +68,7 @@ class Agent():
                 servo_to_rad(SHOULDER,dict[SHOULDER]),
                 servo_to_rad(ELBOW,dict[ELBOW])
         ], target, 50, 0.9)
-        print(f"Body: {body_rad} Shoulder {shoulder_rad} Elbow {elbow_rad}")
+        # print(f"Body: {body_rad} Shoulder {shoulder_rad} Elbow {elbow_rad}")
         # if(abs(dict[BODY] - rad_to_servo(BODY, body_rad))<THRESHOLD):
         #     if(abs(dict[SHOULDER] - rad_to_servo(SHOULDER, shoulder_rad))<THRESHOLD):
         #         new_dict[ELBOW] = rad_to_servo(ELBOW, elbow_rad)
@@ -74,6 +77,7 @@ class Agent():
         new_dict[BODY] = rad_to_servo(BODY, body_rad)
         new_dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
         new_dict[ELBOW]  = rad_to_servo(ELBOW, elbow_rad)
+        new_dict[GRIP] = 950
 
         # for item in dict:
         #     if dict[item] < MIN_MAX_VALUES[item][0]:
@@ -84,4 +88,9 @@ class Agent():
         return new_dict
 
     def fetch(self, color):
-        print(f"Fetching {color}")
+        print(f"Looking for {color}")
+        temp = detectionLoop(color)
+        if len(temp) == 3:
+            self.coordinates = temp 
+            print(f"Coordinates: {self.coordinates}")
+            print(f"Fetching {color}")
