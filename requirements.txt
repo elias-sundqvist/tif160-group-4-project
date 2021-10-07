@@ -2,3 +2,4 @@ asyncio
 speechrecognition
 torch
 pyserial
+RPi.GPIO

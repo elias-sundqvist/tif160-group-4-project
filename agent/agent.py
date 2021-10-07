@@ -1,96 +1,55 @@
 from serial_communication.servo_utils import MIN_MAX_VALUES
-import kinematics.kinematics as k
 from serial_communication.servo_ids import *
-from serial_communication.servo_utils import servo_to_rad, rad_to_servo
-from math import pi
+from agent import tasks
 from color_detection.objectDetection import detectionLoop
+from buzzer import buzzer
 
-
-THRESHOLD=20
-
-poses = [
-    {
-        BODY: 0,
-        SHOULDER: 0,
-        ELBOW: 0,
-        GRIP: 1700
-    },
-    {
-        BODY: 0.8*pi / 2,
-        SHOULDER: pi / 8,
-        ELBOW: pi / 8,
-        GRIP: 700
-    },
-    
-    {
-        BODY: 0.8*pi / 2,
-        SHOULDER: pi / 8,
-        ELBOW: pi / 8,
-        GRIP: 1200
-    },
-
-    {
-        BODY: 0.8*pi / 2,
-        SHOULDER: pi / 8,
-        ELBOW: pi /2,
-        GRIP: 1200
-    }
-]
-
-
-
-class Agent():
+class Agent:
     def __init__(self):
-        self.placeholder = -1
-        self.state = 0
-        self.coordinates = [0.103,0.26625,0.51925]
+        self.taskList = [tasks.MoveHandToPosition([0.103,0.26625,0.51925])]
+        self.task = tasks.WaitForInstructions()
 
-    def run(self, dict, target):
-        new_dict = {}
-        # target_pose = poses[self.state]
-        # done = True
-        # for k in target_pose.keys():
-        #     target_servo_val = rad_to_servo(k, target_pose[k]) if k != GRIP else target_pose[k]
-        #     #print(dict[k], target_servo_val, k)
+    def run(self, dict):
+        self.task.run(self, dict)
+        if self.task.is_done(dict):
+            if len(self.taskList) > 0:
+                self.task = self.taskList.pop(0)
+            else:
+                self.task = tasks.WaitForInstructions()
 
-        #     if(abs(dict[k]-target_servo_val)>THRESHOLD):
-        #         done=False
+    def close_gripper(self, dict):
+        return {**dict, GRIP: 950}
 
-        #     new_dict[k] = target_servo_val
+    def is_in_pose(self, current_pose, target, threshold=20):
+        result = True
+        for servo in target.keys():
+            if abs(target[servo] - current_pose[servo]) > threshold:
+                result = False
+        return result
 
-        
-        # if done:
-        #     self.state+=1
-        # #print(self.state)
+    def handle_speech(self, msg):
+        msg = msg.lower()
+        if 'cancel' in msg:
+            self.taskList = []
+            self.task = tasks.WaitForInstructions()
 
-        body_rad, shoulder_rad, elbow_rad = k.step_towards_target([
-                servo_to_rad(BODY,dict[BODY]),
-                servo_to_rad(SHOULDER,dict[SHOULDER]),
-                servo_to_rad(ELBOW,dict[ELBOW])
-        ], target, 50, 0.9)
-        # print(f"Body: {body_rad} Shoulder {shoulder_rad} Elbow {elbow_rad}")
-        # if(abs(dict[BODY] - rad_to_servo(BODY, body_rad))<THRESHOLD):
-        #     if(abs(dict[SHOULDER] - rad_to_servo(SHOULDER, shoulder_rad))<THRESHOLD):
-        #         new_dict[ELBOW] = rad_to_servo(ELBOW, elbow_rad)
-        #     new_dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
-        # new_dict[BODY] = rad_to_servo(BODY, body_rad)
-        new_dict[BODY] = rad_to_servo(BODY, body_rad)
-        new_dict[SHOULDER] = rad_to_servo(SHOULDER, shoulder_rad)
-        new_dict[ELBOW]  = rad_to_servo(ELBOW, elbow_rad)
-        new_dict[GRIP] = 950
+        if 'red' in msg:
+            self.fetch('red')
 
-        # for item in dict:
-        #     if dict[item] < MIN_MAX_VALUES[item][0]:
-        #         dict[item] = MIN_MAX_VALUES[item][0]
-        #     elif dict[item] > MIN_MAX_VALUES[item][1]:
-        #         dict[item] = MIN_MAX_VALUES[item][1]
+        if 'green' in msg:
+            self.fetch('green')
 
-        return new_dict
+        if 'blue' in msg:
+            self.fetch('blue')
 
     def fetch(self, color):
         print(f"Looking for {color}")
-        temp = detectionLoop(color)
-        if len(temp) == 3:
-            self.coordinates = temp 
-            print(f"Coordinates: {self.coordinates}")
+        cube_position = detectionLoop(color)
+        buzzer.thinking_noise()
+        if len(cube_position) == 3:
+            self.taskList.append(tasks.MoveHandToPosition(cube_position))
+            print(f"Coordinates: {cube_position}")
             print(f"Fetching {color}")
+            buzzer.happy_noise()
+        else:
+            buzzer.sad_noise()

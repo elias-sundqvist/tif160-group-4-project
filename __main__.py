@@ -9,20 +9,7 @@ if __name__ == "__main__":
 
     speech = Speech()
 
-    #agent.fetch('red')
-
-    def handle_speech(msg):
-        msg = msg.lower()
-        if 'red' in msg:
-            agent.fetch('red')
-
-        if 'green' in msg:
-            agent.fetch('green')
-
-        if 'blue' in msg:
-            agent.fetch('blue')
-
-    speech.add_listener(handle_speech)
-    #input("Press Enter to continue...")
+    speech.add_listener(lambda msg: agent.handle_message(msg))
+    # input("Press Enter to continue...")
 
     sc.thread_write.join()
