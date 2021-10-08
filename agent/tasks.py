@@ -46,3 +46,20 @@ class MoveHandToPosition(Task):
             pos = k.forward(self.get_joint_angles(current_pose))
             distance = torch.mean(torch.square(torch.sub(pos, self.target)))
             return distance < 0.005
+        
+class OpenHand(Task):
+    def run(self, agent, current_pose):
+        return {**current_pose, GRIPPER: 560}
+    
+    def is_done(self, agent, current_pose):
+        return agent.is_in_pose(current_pose, {GRIPPER: 560})
+    
+class CloseHand(Task):
+    def run(self, agent, current_pose):
+        return {**current_pose, GRIPPER: 950}
+    
+    def is_done(self, agent, current_pose):
+        return agent.is_in_pose(current_pose, {GRIPPER: 950})
+    
+
+    
