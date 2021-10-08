@@ -51,7 +51,7 @@ class Agent:
             self.taskList.append(tasks.OpenGripper())
             self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04)))
             self.taskList.append(tasks.MoveHandToPosition(cube_position))
-            self.taskList.append(tasks.CloseGripper()                  
+            self.taskList.append(tasks.CloseGripper())                  
             self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04)))                     
             print(f"Coordinates: {cube_position}")
             print(f"Fetching {color}")
