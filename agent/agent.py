@@ -2,7 +2,8 @@ from serial_communication.servo_utils import MIN_MAX_VALUES
 from serial_communication.servo_ids import *
 from agent import tasks
 from color_detection.objectDetection import detectionLoop
-from buzzer import buzzer
+from buzzer import buzzer 
+import numpy as np
 
 class Agent:
     def __init__(self):
@@ -47,7 +48,11 @@ class Agent:
         cube_position = detectionLoop(color)
         buzzer.thinking_noise()
         if len(cube_position) == 3:
+            self.taskList.append(tasks.OpenGripper())
+            self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04)))
             self.taskList.append(tasks.MoveHandToPosition(cube_position))
+            self.taskList.append(tasks.CloseGripper()                  
+            self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04)))                     
             print(f"Coordinates: {cube_position}")
             print(f"Fetching {color}")
             buzzer.happy_noise()
