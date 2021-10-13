@@ -14,7 +14,7 @@ class Speech():
                 listener(message)
 
         def recognition_loop():
-            with sp.Microphone(device_index=1) as source:
+            with sp.Microphone(device_index=2) as source: #change this to 1 when hdmi not connected! (2 when hdmi connected)
                 while True:
                     try:
                         audio = rec.listen(source,2,2)

@@ -30,21 +30,21 @@ class TimerThreadWrite(Thread):
                 global local_dict
                 if(local_dict[READY]):
                     # print("Sending new pos!")
-                    new_positions = self.agent.run(local_dict,self.agent.coordinates)
+                    new_positions = self.agent.run(local_dict)
                     res = ''
                     for i, item in enumerate(new_positions):
                         res += str(item) + ':' + str(new_positions[item]) + ('' if i == len(new_positions)-1 else '&') # This will add a '&' to the last servo also, might remove it
-                    # print(res)
+                    print(f"Sending new pos: {res}")
                     self.bus.write(res.encode('utf-8'))
 
             except (serial.SerialException or TypeError) as e: # Not sure this is allowed (BUG)
                 #There is no new data from serial port
-                print("Serial error got ",e)
+                print("Write serial error got ",e)
                 self.bus.close()
                 self.stopped.set() # This will close the thread
 
 class TimerThreadRead(Thread):
-    def __init__(self, event, bus, interval=0): # Might change the interval to be the same as Arduino write
+    def __init__(self, event, bus, interval=0.4): # Might change the interval to be the same as Arduino write
         Thread.__init__(self)
         self.stopped = event
         self.interval = interval
@@ -67,18 +67,20 @@ class TimerThreadRead(Thread):
                             local_dict[servo] = (int(value) if servo != 6 else bool(value)) #We could store them as strings and deal with int convertion later in agent?
                     except:
                         continue # This is only for the first time reading the Arduino might give strange things
-                # print(local_dict)
+                #print(local_dict)
 
             except (serial.SerialException or TypeError) as e: # Not sure this is allowed (BUG)
                 #There is no new data from serial port
-                print("Serial error got: ",e)
+                print("Read serial error got: ",e)
                 self.bus.close()
-                self.stopped.set() # This will close the thread
+                self.bus = serial.Serial('/dev/ttyACM0', 57600, timeout=0) # If the name is not the arduino test '/dev/ttyUSB0' [This is for USB communication! if I2C is used name need to be changed]
+                self.bus.flush()
+                #self.stopped.set() # This will close the thread
 
 
 class SerialCommunicator:
     def __init__(self, agent):
-        self.bus = serial.Serial('/dev/ttyACM0', 57600, timeout=1) # If the name is not the arduino test '/dev/ttyUSB0' [This is for USB communication! if I2C is used name need to be changed]
+        self.bus = serial.Serial('/dev/ttyACM0', 57600, timeout=0) # If the name is not the arduino test '/dev/ttyUSB0' [This is for USB communication! if I2C is used name need to be changed]
         self.bus.flush()
 
         # Start the read thread

@@ -159,11 +159,16 @@ def coordinateTransform(xWorld, yWorld):
 def detectionLoop(color):
     
     inVideo = cv2.VideoCapture(0,cv2.CAP_V4L2)
+    inVideo.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('Y', '1', '6', ' '))
+    inVideo.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+    inVideo.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    
+    
     if inVideo.read()[0]:
         print('Camera index correct')
     
-    inVideo.set(cv2.CAP_PROP_FRAME_WIDTH,  1920)
-    inVideo.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+    #inVideo.set(cv2.CAP_PROP_FRAME_WIDTH,  1920)
+    #inVideo.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     print(inVideo.get(cv2.CAP_PROP_FRAME_WIDTH),inVideo.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -195,6 +200,7 @@ def detectionLoop(color):
         contours = contourDefinition(andMask, kernel)
         
         xWorld, yWorld = identifying(contours, color, img)
+        print("Trying to identify")
         
         if type(xWorld) != str:
             
@@ -219,7 +225,7 @@ def detectionLoop(color):
                         
                         #cv2.drawContours(img,contoursBlue,-1,(255,255,255),3)                     
                         
-        # cv2.imshow("Colors", img)
+        #cv2.imshow("Colors", img)
         #cv2.imshow("b",blueAnd)
         #cv2.imshow("b2",blueDilate)
         stop = time.time()
@@ -231,17 +237,14 @@ def detectionLoop(color):
         
         if (stop - start > 10):
             finalCoords = []
+            print("exit")
             break
         
-                
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            
-            break
 
     inVideo.release()
     cv2.destroyAllWindows()
     
     return finalCoords
 
-# f = detectionLoop("red")
-# print('final', f)
+#f = detectionLoop("green")
+#print('final', f)

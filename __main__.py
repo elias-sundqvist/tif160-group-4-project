@@ -9,7 +9,9 @@ if __name__ == "__main__":
 
     speech = Speech()
 
-    speech.add_listener(lambda msg: agent.handle_message(msg))
+    speech.add_listener(lambda msg: agent.handle_speech(msg))
     # input("Press Enter to continue...")
+
+    #agent.handle_speech("red")
 
     sc.thread_write.join()

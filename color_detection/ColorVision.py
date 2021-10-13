@@ -107,7 +107,7 @@ def worldCoords(xScreen, yScreen, image):
 
 ##############################################################
 
-inVideo = cv2.VideoCapture(0)
+inVideo = cv2.VideoCapture(0,cv2.CAP_V4L2)
 
 while (True):
     _, img =  inVideo.read()
@@ -138,13 +138,11 @@ while (True):
                     
                     #cv2.drawContours(img,contoursBlue,-1,(255,255,255),3)                     
                     
-    cv2.imshow("Colors", img)
+    #cv2.imshow("Colors", img)
     #cv2.imshow("b",blueAnd)
     #cv2.imshow("b2",blueDilate)
 
-    if cv2.waitKey(10) & 0xFF == ord('q'):
-        
-        break
+    
     
 inVideo.release()
 cv2.destroyAllWindows()

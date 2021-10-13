@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-buzzer_pin = 27
+buzzer_pin = 13
 
 
 def buzz(frequency, length):  # create the function "buzz" and feed it the pitch and duration)
@@ -28,10 +28,13 @@ def play_notes(notes):
     GPIO.cleanup()
 
 def thinking_noise():
-    play_notes([(300, 0.2), (0, 0.2)] * 3)
+    print("making thinking noises")
+    play_notes([(300, 0.1), (0, 0.1)] * 3)
 
 def happy_noise():
+    print("making happy noises")
     play_notes([(440, 0.25), (660, 0.25)])
 
 def sad_noise():
+    print("making sad noises")
     play_notes([(440, 0.25), (370, 0.25)])
