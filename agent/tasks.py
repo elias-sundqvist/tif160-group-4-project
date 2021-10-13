@@ -49,17 +49,17 @@ class MoveHandToPosition(Task):
         
 class OpenHand(Task):
     def run(self, agent, current_pose):
-        return {**current_pose, GRIPPER: 560}
+        return {**current_pose, GRIP: 560}
     
     def is_done(self, agent, current_pose):
-        return agent.is_in_pose(current_pose, {GRIPPER: 560})
+        return agent.is_in_pose(current_pose, {GRIP: 560})
     
 class CloseHand(Task):
     def run(self, agent, current_pose):
-        return {**current_pose, GRIPPER: 950}
+        return {**current_pose, GRIP: 950}
     
     def is_done(self, agent, current_pose):
-        return agent.is_in_pose(current_pose, {GRIPPER: 950})
+        return agent.is_in_pose(current_pose, {GRIP: 950})
     
 
     
