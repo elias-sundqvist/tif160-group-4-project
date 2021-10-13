@@ -48,10 +48,10 @@ class Agent:
         cube_position = detectionLoop(color)
         buzzer.thinking_noise()
         if len(cube_position) == 3:
-            self.taskList.append(tasks.OpenGripper())
+            self.taskList.append(tasks.OpenGrip())
             self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04])))
             self.taskList.append(tasks.MoveHandToPosition(cube_position))
-            self.taskList.append(tasks.CloseGripper())                  
+            self.taskList.append(tasks.CloseGrip())                  
             self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04])))                     
             print(f"Coordinates: {cube_position}")
             print(f"Fetching {color}")

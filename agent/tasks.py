@@ -47,14 +47,14 @@ class MoveHandToPosition(Task):
             distance = torch.mean(torch.square(torch.sub(pos, self.target)))
             return distance < 0.005
         
-class OpenHand(Task):
+class OpenGrip(Task):
     def run(self, agent, current_pose):
         return {**current_pose, GRIP: 560}
     
     def is_done(self, agent, current_pose):
         return agent.is_in_pose(current_pose, {GRIP: 560})
     
-class CloseHand(Task):
+class CloseGrip(Task):
     def run(self, agent, current_pose):
         return {**current_pose, GRIP: 950}
     
