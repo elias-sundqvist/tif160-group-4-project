@@ -9,6 +9,8 @@ Created on Mon Sep 13 16:20:15 2021
 import numpy as np
 import cv2
 import time
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 
 def createMask(color, hsvImage):
     colorRange = {
@@ -153,19 +155,35 @@ def coordinateTransform(xWorld, yWorld):
     
     return coordsFromBase[:-1]
 
+def piCam():
+    
+    camera = PiCamera()
+    camera.resolution = (1920,1080)
+    camera.framerate = 32
+    rawCapture = PiRGBArray(camera, size=(1920,1080))
+    
+    time.sleep(0.1)
+    
+    return camera, rawCapture
+    
+
 
 ##############################################################
 
 def detectionLoop(color):
     
-    inVideo = cv2.VideoCapture(0)
+    #inVideo = cv2.VideoCapture(0)
+    camera, rawCapture = piCam()
     xCoordList = []
     yCoordList = []
     
     start = time.time()
     #print('start',start)
     
-    while (True):
+    #while (True):
+    for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+        
+        img = frame.array
         
         # numToColor = {
         #         1: "red",
@@ -175,7 +193,7 @@ def detectionLoop(color):
         
         #color = numToColor[colorNumber]
         
-        _, img =  inVideo.read()
+        #_, img =  inVideo.read()
         hsvImg = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
         
         mask = createMask(color, hsvImg)
@@ -225,12 +243,14 @@ def detectionLoop(color):
             finalCoords = []
             break
         
-                
+        rawCapture.truncate(0)        
+        
         if cv2.waitKey(10) & 0xFF == ord('q'):
             
             break
 
-    inVideo.release()
+    #inVideo.release()
+    
     cv2.destroyAllWindows()
     
     return finalCoords
