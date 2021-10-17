@@ -55,7 +55,9 @@ while(True):
                 steeringCorrection = xCenter-frameWidth/2
                 tiltCorrection = yCenter-frameHeight/2
                 speedCorrection = handWidthFactor - h/frameWidth
-    
+            break
+        
+            
 
     # Display the resulting frame
     cv2.imshow('preview',frame)
