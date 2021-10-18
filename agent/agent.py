@@ -2,6 +2,7 @@ from serial_communication.servo_utils import MIN_MAX_VALUES
 from serial_communication.servo_ids import *
 from agent import tasks
 from color_detection.objectDetection import detectionLoop
+from color_detection.objectDetection import coordinateTransform
 from buzzer import buzzer 
 from cascade_classifier.HandDetection import handDetection
 
@@ -95,9 +96,9 @@ class Agent:
 
 
         if (steerCorrection==0 and tiltCorrection==0 and speedCorrection==0):
-            hand_position = [xHand,yHand]
-            #Dont know how to get z-coordinate, but needs to be done here
-            if len(cube_position) == 3:
+            hand_position = coordinateTransform(xHand,yHand)
+
+            if len(hand_position) == 3:
                 self.taskList.append(tasks.MoveHandToPosition(hand_position))
                 self.taskList.append(tasks.OpenGrip())               
                 self.taskList.append(tasks.MoveHandToPosition(np.add(hand_position,[0,0,0.04])))    
