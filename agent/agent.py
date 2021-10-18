@@ -10,8 +10,8 @@ import numpy as np
 
 class Agent:
     def __init__(self):
-        self.taskList = [tasks.MoveHandToPosition([0.103,0.26625,0.51925])]
-        self.task = tasks.WaitForInstructions()
+        self.taskList = [MoveHandToPosition([0.103,0.26625,0.51925])]
+        self.task = WaitForInstructions()
 
     def run(self, dict):
         self.task.run(self, dict)
@@ -19,7 +19,7 @@ class Agent:
             if len(self.taskList) > 0:
                 self.task = self.taskList.pop(0)
             else:
-                self.task = tasks.WaitForInstructions()
+                self.task = WaitForInstructions()
 
     def close_gripper(self, dict):
         return {**dict, GRIP: 950}
@@ -35,7 +35,7 @@ class Agent:
         msg = msg.lower()
         if 'cancel' in msg:
             self.taskList = []
-            self.task = tasks.WaitForInstructions()
+            self.task = WaitForInstructions()
 
         if 'red' in msg:
             self.fetch('red')
@@ -51,11 +51,11 @@ class Agent:
         cube_position = detectionLoop(color)
         buzzer.thinking_noise()
         if len(cube_position) == 3:
-            self.taskList.append(tasks.OpenGrip())
-            self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04])))
-            self.taskList.append(tasks.MoveHandToPosition(cube_position))
-            self.taskList.append(tasks.CloseGrip())                  
-            self.taskList.append(tasks.MoveHandToPosition(np.add(cube_position,[0,0,0.04])))                     
+            self.taskList.append(OpenGrip())
+            self.taskList.append(MoveHandToPosition(np.add(cube_position,[0,0,0.04])))
+            self.taskList.append(MoveHandToPosition(cube_position))
+            self.taskList.append(CloseGrip())                  
+            self.taskList.append(MoveHandToPosition(np.add(cube_position,[0,0,0.04])))                     
             print(f"Coordinates: {cube_position}")
             print(f"Fetching {color}")
             buzzer.happy_noise()
@@ -116,10 +116,10 @@ class Agent:
             hand_position = coordinateTransform(xHand,yHand)
 
             if len(hand_position) == 3:
-                self.taskList.append(tasks.MoveHandToPosition(hand_position))
-                self.taskList.append(tasks.OpenGrip())               
-                self.taskList.append(tasks.MoveHandToPosition(np.add(hand_position,[0,0,0.04])))    
-                self.taskList.append(tasks.CloseGrip()) 
+                self.taskList.append(MoveHandToPosition(hand_position))
+                self.taskList.append(OpenGrip())               
+                self.taskList.append(MoveHandToPosition(np.add(hand_position,[0,0,0.04])))    
+                self.taskList.append(CloseGrip()) 
                 print(f"Coordinates: {hand_position}")
                 print(f"Dropped Cube at location")
                 buzzer.happy_noise()
