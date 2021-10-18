@@ -52,7 +52,7 @@ def handDetection(handWidthRatio):
                     yCenter = x+h/2
                     steeringCorrection = xCenter-frameWidth/2
                     tiltCorrection = yCenter-frameHeight/2
-                    speedCorrection = handWidthRatio - w/frameWidth
+                    speedCorrection = handWidthRatio - w/frameWidth +1
 
 
                 break

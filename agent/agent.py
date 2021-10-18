@@ -65,19 +65,19 @@ class Agent:
     def dropOffCube(self):
         print(f"Looking for Hand")
 
-        #Modify theese:
+        # OBS!!: Modify theese:
         #-----------------------------------------------------------------------------------------
-        steerCorrFactor = 1
-        tiltCorrFactor = 1
-        speedCorrFactor = 1
+        steerCorrFactor = 1     #How much it turns for each pixel it's off to the side
+        tiltCorrFactor = 1      #How much it tilts -||-
+        speedCorrFactor = 200   #How much the speed changes based on handWidth/frameWidth
 
-        steeringCorrMin = 0
-        tiltCorrMin = 0
-        speedCorrMin = 0
+        steeringCorrMin = 10
+        tiltCorrMin = 10
+        speedCorrMin = 50
 
-        steerCorrMax = 10
-        tiltCorrMax = 10
-        speedCorrMax = 10
+        steerMax = 40       #Max Steering   (ex: speedL=speedCorrMax-steerCorrMax, speedR=speedCorrMax+steerCorrMax)
+        tiltMax = 400       #Max tilt
+        speedMax = 80       #Max speed
 
         handWidthRatio = 0.3    #The ratio handWidth/frameWidth when the hand is close enough to drop the cube
         #-----------------------------------------------------------------------------------------
@@ -85,14 +85,31 @@ class Agent:
         steerCorr, tiltCorr, speedCorr, xHand, yHand = handDetection(handWidthRatio)
 
         #Multiplies the correction by a facor
-        steerCorr = steerCorr * steerCorrFactor   #positive to the right
-        tiltCorr  = tiltCorr * tiltCorrFactor     #I think this is positive downwards if (0,0) is in the top left corner
-        speedCorr = speedCorr * speedCorrFactor
+        steer = steerCorr * steerCorrFactor         #positive to the right
+        tilt  = tiltCorr * tiltCorrFactor           #I think this is positive downwards if (0,0) is in the top left corner
+        speed = round(speedCorr * speedCorrFactor)  
 
-        #Sets Corr to 0 or CorrMax if the value is outside of [CorrMin-CorrMax]
-        steerCorr = (steerCorrMin < abs(steerCorr) and abs(steerCorr) < steerCorrMax) * steerCorr  +  (abs(steerCorr) > steerCorrMax) * steerCorrMax
-        tiltCorr  = ( tiltCorrMin < abs( tiltCorr) and abs( tiltCorr) <  tiltCorrMax) * tiltCorr   +  (abs( tiltCorr) >  tiltCorrMax) *  tiltCorrMax
-        speedCorr = (speedCorrMin < abs(speedCorr) and abs(speedCorr) < speedCorrMax) * speedCorr  +  (abs(speedCorr) > speedCorrMax) * speedCorrMax
+        #Sets Corr to 0 or +-Max if the value is outside of [CorrMin-CorrMax]
+        if (steer > steerMax):
+            steer = steerMax
+        elif (steer < -steerMax):
+            steer = -steerMax
+        elif (abs(steer) < steerMin):
+            steer = 0
+
+        if (tilt > tiltMax):
+            tilt = tiltMax
+        elif (tilt < -tiltMax):
+            tilt = -tiltMax
+        elif (abs(tilt) < tiltMin):
+            tilt = 0
+
+        if (speed > speedMax):
+            speed = speedMax
+        elif (speed < -speedMax):
+            speed = -speedMax
+        elif (abs(speed) < speedMin):
+            speed = 0
 
 
         if (steerCorrection==0 and tiltCorrection==0 and speedCorrection==0):
@@ -111,5 +128,7 @@ class Agent:
         
         else:
             #Set speed based on SetWheelSpeeds()  (dont know how you have changed this)
-            self.taskList.append(task.SetWheelSpeeds())
+            self.taskList.append(task.SetWheelSpeeds(speed+steer,speed-steer,4))    #Guessing 4 is good, you can change it
+            
+            #Tilt camera based on tiltCorr here:
             
