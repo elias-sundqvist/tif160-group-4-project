@@ -4,7 +4,7 @@ from agent import tasks
 from color_detection.objectDetection import detectionLoop
 from color_detection.objectDetection import coordinateTransform
 from buzzer import buzzer 
-from cascade_classifier.HandDetection import handDetection
+from cascade_classifier.Hand_Detection import handDetection
 
 import numpy as np
 
