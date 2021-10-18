@@ -1,6 +1,6 @@
 from serial_communication.servo_utils import MIN_MAX_VALUES
 from serial_communication.servo_ids import *
-from agent import tasks
+from agent.tasks import *
 from color_detection.objectDetection import detectionLoop
 from color_detection.objectDetection import coordinateTransform
 from buzzer import buzzer 
