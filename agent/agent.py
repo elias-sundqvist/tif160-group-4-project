@@ -71,13 +71,13 @@ class Agent:
         tiltCorrFactor = 1      #How much it tilts -||-
         speedCorrFactor = 200   #How much the speed changes based on handWidth/frameWidth
 
-        steeringCorrMin = 10
-        tiltCorrMin = 10
-        speedCorrMin = 50
+        steerMin = 10
+        tiltMin = 10
+        speedMin = 50
 
-        steerMax = 40       #Max Steering   (ex: speedL=speedCorrMax-steerCorrMax, speedR=speedCorrMax+steerCorrMax)
-        tiltMax = 400       #Max tilt
-        speedMax = 80       #Max speed
+        steerMax = 40       #Max Steering   (ex: speedL=speedMax-steerMax, speedR=speedMax+steerMax)
+        tiltMax = 400
+        speedMax = 80
 
         handWidthRatio = 0.3    #The ratio handWidth/frameWidth when the hand is close enough to drop the cube
         #-----------------------------------------------------------------------------------------
