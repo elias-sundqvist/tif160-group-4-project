@@ -14,10 +14,10 @@ class Speech():
                 listener(message)
 
         def recognition_loop():
-            with sp.Microphone(device_index=2) as source: #change this to 1 when hdmi not connected! (2 when hdmi connected)
+            with sp.Microphone(device_index=2, sample_rate=48000) as source: #change this to 1 when hdmi not connected! (2 when hdmi connected)
                 while True:
                     try:
-                        audio = rec.listen(source,2,2)
+                        audio = rec.listen(source,6,6)
                         message_received(rec.recognize_google(audio))
                     except:
                         print("No message heard")

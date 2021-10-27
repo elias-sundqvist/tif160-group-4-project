@@ -5,15 +5,15 @@ from serial_communication.servo_ids import *
 MIN_MAX_VALUES = {BODY:[560, 2330],
                   NECK_PAN:[750, 2200],
                   NECK_TILT:[550, 2400],
-                  SHOULDER:[550, 2150],
+                  SHOULDER:[1275, 2055],
                   ELBOW:[550, 2340],
-                  GRIP:[950, 2400]}
+                  GRIP:[650, 1750]}
 
 # SERVO_FOR_MIN_RAD, SERVO_FOR_MAX_RAD, MIN_RAD, MAX_RAD
 # Change body 0 -> ~6 deg
 MIN_MAX_SERVO_RAD = {
-    BODY: [560,2350,pi,6 * pi/180], 
-    SHOULDER: [2180, 1280, 0, pi/2],
+    BODY: [560,2350,170 * pi/180,2 * pi/180], 
+    SHOULDER: [1275, 2055, 0, pi/2],
     ELBOW: [1400, 2400, 0, pi/2],
     NECK_PAN: [550, 2300, -pi/2, pi/2],
     NECK_TILT: [2350, 1000, -pi/4, pi/2]
